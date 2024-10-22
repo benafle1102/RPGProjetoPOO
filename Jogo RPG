@@ -1,0 +1,170 @@
+public abstract class Personagem {
+    protected String nome;
+    protected int vida;
+    protected int ataque;
+    protected int defesa;
+
+    public Personagem(String nome, int vida, int ataque, int defesa) {
+        this.nome = nome;
+        this.vida = vida;
+        this.ataque = ataque;
+        this.defesa = defesa;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public int getVida() {
+        return vida;
+    }
+
+    public void setVida(int vida) {
+        this.vida = vida;
+    }
+
+    public abstract void atacar(Personagem alvo);
+
+    public void receberDano(int dano) {
+        int danoFinal = dano - this.defesa;
+        if (danoFinal > 0) {
+            this.vida -= danoFinal;
+        } else {
+            System.out.println(this.nome + " bloqueou o ataque!");
+        }
+    }
+
+    public boolean estaVivo() {
+        return vida > 0;
+    }
+}
+public class Guerreiro extends Personagem {
+
+    public Guerreiro(String nome) {
+        super(nome, 150, 30, 15);
+    }
+
+    @Override
+    public void atacar(Personagem alvo) {
+        System.out.println(this.nome + " ataca com sua espada!");
+        alvo.receberDano(this.ataque);
+    }
+}
+public class Mago extends Personagem {
+
+    private int mana;
+
+    public Mago(String nome) {
+        super(nome, 100, 40, 5);
+        this.mana = 100;
+    }
+
+    @Override
+    public void atacar(Personagem alvo) {
+        if (mana >= 20) {
+            System.out.println(this.nome + " lança uma bola de fogo!");
+            alvo.receberDano(this.ataque + 10); // Ataque mágico mais forte
+            mana -= 20;
+        } else {
+            System.out.println(this.nome + " não tem mana suficiente!");
+        }
+    }
+
+    public void recuperarMana() {
+        mana += 10;
+        System.out.println(this.nome + " recuperou mana.");
+    }
+}
+public class Arqueira extends Personagem {
+
+    public Arqueira(String nome) {
+        super(nome, 120, 25, 10);
+    }
+
+    @Override
+    public void atacar(Personagem alvo) {
+        System.out.println(this.nome + " dispara uma flecha!");
+        alvo.receberDano(this.ataque);
+    }
+}
+public class Monstro extends Personagem {
+
+    public Monstro(String nome, int vida, int ataque, int defesa) {
+        super(nome, vida, ataque, defesa);
+    }
+
+    @Override
+    public void atacar(Personagem alvo) {
+        System.out.println(this.nome + " ataca ferozmente!");
+        alvo.receberDano(this.ataque);
+    }
+}
+public class Item {
+    private String nome;
+    private String efeito;
+
+    public Item(String nome, String efeito) {
+        this.nome = nome;
+        this.efeito = efeito;
+    }
+
+    public void usar(Personagem p) {
+        System.out.println(p.getNome() + " usou " + this.nome + " e " + this.efeito);
+        // Lógica do efeito do item (ex: poção de cura, aumento de ataque etc.)
+    }
+}
+import java.util.ArrayList;
+
+public class Inventario {
+    private ArrayList<Item> itens;
+
+    public Inventario() {
+        this.itens = new ArrayList<>();
+    }
+
+    public void adicionarItem(Item item) {
+        itens.add(item);
+        System.out.println("Item " + item + " adicionado ao inventário.");
+    }
+
+    public void usarItem(Item item, Personagem personagem) throws Exception {
+        if (itens.contains(item)) {
+            item.usar(personagem);
+            itens.remove(item);
+        } else {
+            throw new Exception("Item não encontrado no inventário!");
+        }
+    }
+}
+public class Jogo {
+    public static void main(String[] args) {
+        Guerreiro guerreiro = new Guerreiro("Arthor");
+        Mago mago = new Mago("Maeron");
+        Arqueira arqueira = new Arqueira("Lyra");
+
+        Monstro monstro = new Monstro("Goblin", 80, 20, 5);
+
+        Inventario inventario = new Inventario();
+        Item pocaoCura = new Item("Poção de Cura", "restaurou 50 pontos de vida");
+
+        inventario.adicionarItem(pocaoCura);
+
+        // Simulação de combate
+        guerreiro.atacar(monstro);
+        mago.atacar(monstro);
+        arqueira.atacar(monstro);
+
+        try {
+            inventario.usarItem(pocaoCura, guerreiro);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        // Tratamento de exceção ao tentar usar um item que não existe
+        try {
+            inventario.usarItem(new Item("Espada Lendária", "aumenta o ataque"), guerreiro);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
